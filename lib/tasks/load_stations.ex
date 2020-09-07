@@ -1,4 +1,5 @@
 defmodule TempsWTF.LoadStations do
+  require Logger
   alias TempsWTF.Repo
   alias TempsWTF.Weather
   alias TempsWTF.Weather.Station
@@ -48,6 +49,7 @@ defmodule TempsWTF.LoadStations do
         |> Ecto.Changeset.force_change(:inserted_at, epoch_time)
         |> Ecto.Changeset.force_change(:updated_at, epoch_time)
 
+      Logger.info("Inserting Station: #{id}")
       Ecto.Multi.insert(multi, id, cs)
     end)
     |> Repo.transaction()
