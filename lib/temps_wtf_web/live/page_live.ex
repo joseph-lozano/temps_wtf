@@ -4,7 +4,7 @@ defmodule TempsWTFWeb.PageLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, stations: [], state: nil)}
+    {:ok, assign(socket, stations: [], state: nil, highs: [])}
   end
 
   @impl true
@@ -22,8 +22,8 @@ defmodule TempsWTFWeb.PageLive do
   end
 
   def handle_event("lookup_station", %{"station" => %{"id" => station_id}}, socket) do
-    Weather.get_record_highs(station_id)
-    {:noreply, socket}
+    highs = Weather.get_record_highs(station_id)
+    {:noreply, assign(socket, highs: highs)}
   end
 
   defp states do

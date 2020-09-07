@@ -35,7 +35,8 @@ defmodule TempsWTF.Weather do
   def station_data_by_station_id(station_id) do
     Repo.all(
       from d in StationData,
-        where: d.station_id == ^station_id
+        where: d.station_id == ^station_id,
+        order_by: d.date
     )
   end
 
@@ -47,7 +48,7 @@ defmodule TempsWTF.Weather do
       is_nil(station) ->
         {:error, :no_station}
 
-      Date.compare(station.last_updated, today) == :lt ->
+      Date.compare(station.updated_at, today) == :lt ->
         update_station(station)
 
       true ->
@@ -57,12 +58,10 @@ defmodule TempsWTF.Weather do
 
   def update_station(station) do
     {:ok, station_stats} = Meteostat.get_data(station.id)
-    today = NaiveDateTime.local_now() |> NaiveDateTime.to_date()
-    station_last_updated_cs = Station.changeset(station, %{last_updated: today})
 
     init_multi =
       Ecto.Multi.new()
-      |> Ecto.Multi.update("station_last_updated", station_last_updated_cs)
+      |> Ecto.Multi.update("touch-station", Station.touch(station))
 
     Enum.reduce(station_stats, init_multi, fn stats, multi ->
       cs = StationData.changeset(%StationData{}, stats)

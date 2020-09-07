@@ -4,7 +4,6 @@ defmodule TempsWTF.Repo.Migrations.CreateStations do
   def change do
     create table(:stations, primary_key: false) do
       add(:id, :string, primary_key: true)
-      add(:last_updated, :date)
       add(:country, :string)
       add(:elevation, :integer)
       add(:latitude, :float)

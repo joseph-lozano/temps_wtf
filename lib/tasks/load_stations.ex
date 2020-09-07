@@ -18,6 +18,7 @@ defmodule TempsWTF.LoadStations do
 
   def _load(station_list) do
     init_multi = Ecto.Multi.new()
+    epoch_time = DateTime.from_unix!(1) |> DateTime.to_naive()
 
     Enum.reduce(station_list, init_multi, fn station, multi ->
       %{
@@ -33,7 +34,6 @@ defmodule TempsWTF.LoadStations do
 
       attrs = %{
         id: id,
-        last_updated: ~D[1970-01-01],
         country: country,
         elevation: elevation,
         en_name: en_name,
@@ -43,7 +43,11 @@ defmodule TempsWTF.LoadStations do
         timezone: timezone
       }
 
-      cs = Station.changeset(%Station{}, attrs)
+      cs =
+        Station.changeset(%Station{}, attrs)
+        |> Ecto.Changeset.force_change(:inserted_at, epoch_time)
+        |> Ecto.Changeset.force_change(:updated_at, epoch_time)
+
       Ecto.Multi.insert(multi, id, cs)
     end)
     |> Repo.transaction()
