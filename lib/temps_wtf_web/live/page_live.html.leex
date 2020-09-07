@@ -14,7 +14,7 @@
     <div class="row form-row">
       <div class="col">
         <label class="form-label">Country</label>
-          <%= select f, :country, ["US"], class: "form-control disabled" %>
+          <%= select f, :country, ["US"], class: "form-control disabled", disabled: @in_progress %>
       </div>
       <div class="col">
       <%= inspect @in_progress %>
