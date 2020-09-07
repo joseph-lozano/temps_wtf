@@ -2,6 +2,14 @@
   <div class="row">
     <h1 class="text-center mt-5">Temps.WTF</h1>
   </div>
+  <div class="row">
+    <p class="text-center mt-3">
+      Showing every time a a recording breaking temperature was recorded at various weather stations.
+    </p>
+    <p class="text-center">
+      The bottom-most entry is the earliest for which I have data at that station
+    </p>
+  </div>
   <%= form_for :location, "#", [method: :get, phx_change: :get_stations], fn f -> %>
     <div class="row form-row">
       <div class="col">

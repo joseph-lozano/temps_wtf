@@ -23,7 +23,7 @@ defmodule TempsWTFWeb.PageLive do
 
   def handle_event("lookup_station", %{"station" => %{"id" => station_id}}, socket) do
     {socket, highs} =
-      case IO.inspect(Weather.get_record_highs(station_id)) do
+      case Weather.get_record_highs(station_id) do
         {:error, reason} -> {put_flash(socket, :error, inspect(reason)), []}
         highs -> {socket, highs}
       end
