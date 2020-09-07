@@ -24,6 +24,14 @@ defmodule TempsWTF.ReleaseTasks do
     IO.puts("Success!")
   end
 
+  def reset() do
+    start_services()
+    run_migrations(:down)
+    run_migrations()
+    load_stations()
+    IO.puts("Success!")
+  end
+
   defp start_services do
     IO.puts("Starting dependencies..")
     # Start apps necessary for executing migrations
@@ -39,15 +47,15 @@ defmodule TempsWTF.ReleaseTasks do
     Enum.each(repos(), & &1.start_link(pool_size: 2, timeout: 120_000))
   end
 
-  defp run_migrations do
-    Enum.each(repos(), &run_migrations_for/1)
+  defp run_migrations(dir \\ :up) do
+    Enum.each(repos(), &run_migrations_for(&1, dir))
   end
 
-  defp run_migrations_for(repo) do
+  defp run_migrations_for(repo, dir) do
     app = Keyword.get(repo.config(), :otp_app)
     migrations_path = priv_path_for(repo, "migrations")
     IO.puts("Running migrations for #{app}, #{inspect(repo)}, path: #{inspect(migrations_path)}")
-    Ecto.Migrator.run(repo, [migrations_path], :up, all: true)
+    Ecto.Migrator.run(repo, [migrations_path], dir, all: true)
   end
 
   defp priv_path_for(repo, filename) do
