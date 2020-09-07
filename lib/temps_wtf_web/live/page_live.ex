@@ -34,16 +34,16 @@ defmodule TempsWTFWeb.PageLive do
   end
 
   def handle_event("lookup_station", %{"station" => %{"id" => station_id}}, socket) do
-    {{flash, flash_msg}, highs} =
+    socket = clear_flash(socket)
+
+    {socket, highs} =
       case Weather.get_record_highs(station_id) do
         {:error, reason} ->
-          {{:error, reason}, []}
+          {put_flash(socket, :error, reason), []}
 
         highs ->
-          {{:info, "Done!"}, highs}
+          {socket, highs}
       end
-
-    socket = clear_flash(socket) |> put_flash(flash, flash_msg)
 
     {:noreply,
      assign(socket,

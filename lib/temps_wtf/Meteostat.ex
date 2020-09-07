@@ -35,20 +35,21 @@ defmodule TempsWTF.Meteostat do
       %{
         station_id: station_id,
         date: date |> Date.from_iso8601!(),
-        temp_avg: nil_if_empty(tavg),
-        temp_min: nil_if_empty(tmin),
-        temp_max: nil_if_empty(tmax),
-        percipitation: nil_if_empty(prcp),
-        snow: nil_if_empty(snow),
-        wind_dir: nil_if_empty(wdir),
-        wind_speed: nil_if_empty(wspd),
-        wind_gust: nil_if_empty(wpgt),
-        pressure: nil_if_empty(pres),
-        sun_minutes: nil_if_empty(tsun)
+        temp_avg: nil_if_empty(tavg, :float),
+        temp_min: nil_if_empty(tmin, :float),
+        temp_max: nil_if_empty(tmax, :float),
+        percipitation: nil_if_empty(prcp, :float),
+        snow: nil_if_empty(snow, :int),
+        wind_dir: nil_if_empty(wdir, :float),
+        wind_speed: nil_if_empty(wspd, :float),
+        wind_gust: nil_if_empty(wpgt, :float),
+        pressure: nil_if_empty(pres, :float),
+        sun_minutes: nil_if_empty(tsun, :int)
       }
     end)
   end
 
-  defp nil_if_empty(""), do: nil
-  defp nil_if_empty(x), do: x
+  defp nil_if_empty("", _), do: nil
+  defp nil_if_empty(x, :float), do: String.to_float(x)
+  defp nil_if_empty(x, :int), do: String.to_integer(x)
 end

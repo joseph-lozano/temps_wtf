@@ -22,7 +22,7 @@ defmodule TempsWTF.Weather.StationData do
     field :percipitation, :float
     field :pressure, :float
     field :snow, :integer
-    field :sunshine_minutes, :float
+    field :sunshine_minutes, :integer
     field :temp_avg, :float
     field :temp_max, :float
     field :temp_min, :float

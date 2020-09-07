@@ -13,7 +13,7 @@ defmodule TempsWTF.Repo.Migrations.CreateStationData do
       add(:wind_speed, :float)
       add(:wind_gust, :float)
       add(:pressure, :float)
-      add(:sunshine_minutes, :float)
+      add(:sunshine_minutes, :integer)
       add(:station_id, references(:stations, type: :string, on_delete: :nothing))
 
       timestamps()
