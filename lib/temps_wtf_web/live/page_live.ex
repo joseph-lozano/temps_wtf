@@ -4,7 +4,15 @@ defmodule TempsWTFWeb.PageLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, stations: [], state: nil, highs: [], station_id: nil, station_name: nil)}
+    {:ok,
+     assign(socket,
+       stations: [],
+       state: nil,
+       highs: [],
+       station_id: nil,
+       station_name: nil,
+       in_progress: false
+     )}
   end
 
   @impl true
@@ -22,18 +30,48 @@ defmodule TempsWTFWeb.PageLive do
   end
 
   def handle_event("lookup_station", %{"station" => %{"id" => station_id}}, socket) do
-    {socket, highs} =
+    {in_progress, {flash, flash_msg}, highs} =
       case Weather.get_record_highs(station_id) do
-        {:error, reason} -> {put_flash(socket, :error, inspect(reason)), []}
-        highs -> {clear_flash(socket), highs}
+        :in_progress ->
+          {true, {:info, "Getting Data for #{station_id}"}, []}
+
+        {:error, reason} ->
+          {false, {:error, reason}, []}
+
+        highs ->
+          {false, {:info, "Done!"}, highs}
       end
+
+    socket = clear_flash(socket) |> put_flash(flash, flash_msg)
 
     {:noreply,
      assign(socket,
+       in_progress: in_progress,
        highs: highs,
        station_id: station_id,
        station_name: station_name(socket, station_id)
      )}
+  end
+
+  @impl true
+  def handle_info(
+        {:updated_data, station_id},
+        %{assigns: %{station_id: station_id_socket}} = socket
+      )
+      when station_id == station_id_socket do
+    socket =
+      case Weather.get_record_highs(station_id) do
+        :in_progress ->
+          raise "???"
+
+        {:error, reason} ->
+          assign(socket, in_progress: false) |> clear_flash() |> put_flash(:error, reason)
+
+        data ->
+          assign(socket, highs: data, in_progress: false) |> clear_flash()
+      end
+
+    {:noreply, socket}
   end
 
   defp station_name(socket, station_id) do

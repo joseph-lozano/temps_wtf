@@ -1,5 +1,6 @@
 defmodule TempsWTF.Weather do
   alias TempsWTF.Weather.{Station, StationData}
+  alias TempsWTF.WeatherServer
   alias TempsWTF.Meteostat
   alias TempsWTF.Repo
   import Ecto.Query, only: [from: 1, from: 2]
@@ -12,6 +13,11 @@ defmodule TempsWTF.Weather do
   end
 
   def get_record_highs(station_id) do
+    {:ok, _server} = WeatherServer.find_or_start(station_id, self())
+    WeatherServer.get_data(station_id)
+  end
+
+  def do_get_record_highs(station_id) do
     case maybe_update_station(station_id) do
       {:ok, _} ->
         station_data_by_station_id(station_id)
@@ -68,7 +74,7 @@ defmodule TempsWTF.Weather do
           cs = StationData.changeset(%StationData{}, stats)
           Ecto.Multi.insert(multi, "#{station.id}_#{stats.date}", cs)
         end)
-        |> Repo.transaction()
+        |> Repo.transaction(timeout: 120_000)
 
       error ->
         error
