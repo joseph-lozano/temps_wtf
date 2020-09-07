@@ -25,7 +25,7 @@ defmodule TempsWTFWeb.PageLive do
     {socket, highs} =
       case Weather.get_record_highs(station_id) do
         {:error, reason} -> {put_flash(socket, :error, inspect(reason)), []}
-        highs -> {socket, highs}
+        highs -> {clear_flash(socket), highs}
       end
 
     {:noreply,
