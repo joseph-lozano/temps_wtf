@@ -36,7 +36,7 @@ defmodule TempsWTF.ReleaseTasks do
     IO.puts("Starting repos..")
 
     # pool_size can be 1 for ecto < 3.0
-    Enum.each(repos(), & &1.start_link(pool_size: 2))
+    Enum.each(repos(), & &1.start_link(pool_size: 2, timeout: 120_000))
   end
 
   defp run_migrations do
