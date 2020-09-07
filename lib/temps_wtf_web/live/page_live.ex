@@ -36,22 +36,37 @@ defmodule TempsWTFWeb.PageLive do
   def handle_event("lookup_station", %{"station" => %{"id" => station_id}}, socket) do
     socket = clear_flash(socket)
 
-    {socket, highs} =
-      case Weather.get_record_highs(station_id) do
-        {:error, reason} ->
-          {put_flash(socket, :error, reason), []}
+    case Weather.get_record_highs(station_id) do
+      {:error, reason} ->
+        socket =
+          assign(
+            socket,
+            stations:
+              Weather.stations_by_country_and_region(
+                "US",
+                socket.assigns.state
+              ),
+            highs: [],
+            station_id: station_id,
+            station_name: station_name(socket, station_id)
+          )
+          |> put_flash(:error, reason)
 
-        highs ->
-          yearly = Weather.get_yearly_highs(station_id)
-          {push_event(socket, "chart", %{data: encode(yearly)}), highs}
-      end
+        {:noreply, socket}
 
-    {:noreply,
-     assign(socket,
-       highs: highs,
-       station_id: station_id,
-       station_name: station_name(socket, station_id)
-     )}
+      highs ->
+        yearly = Weather.get_yearly_highs(station_id)
+
+        socket =
+          assign(socket,
+            highs: highs,
+            station_id: station_id,
+            station_name: station_name(socket, station_id)
+          )
+          |> push_event("chart", %{data: encode(yearly)})
+
+        {:noreply, socket}
+    end
   end
 
   @impl true
