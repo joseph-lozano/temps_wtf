@@ -42,7 +42,8 @@ defmodule TempsWTFWeb.PageLive do
           {put_flash(socket, :error, reason), []}
 
         highs ->
-          {socket, highs}
+          yearly = Weather.get_yearly_highs(station_id)
+          {push_event(socket, "chart", %{data: encode(yearly)}), highs}
       end
 
     {:noreply,
@@ -147,19 +148,27 @@ defmodule TempsWTFWeb.PageLive do
     |> Enum.map(&{&1.en_name, &1.id})
   end
 
-  defp to_fahrenheit(celsius) do
+  def to_fahrenheit(celsius) do
+    IO.inspect(celsius)
     celsius = Decimal.new("#{celsius}")
     conversion = Decimal.new("1.8")
 
-    fahrenheit =
-      Decimal.mult(celsius, conversion)
-      |> Decimal.add(Decimal.new(32))
-      |> Decimal.round(1)
-
-    "#{fahrenheit}°F "
+    Decimal.mult(celsius, conversion)
+    |> Decimal.add(Decimal.new(32))
+    |> Decimal.round(1)
   end
 
   defp to_iso8601(%Date{} = date) do
     Date.to_iso8601(date)
+  end
+
+  defp encode(highs) do
+    Enum.reduce(highs, %{labels: [], data: []}, fn {date, degrees_c}, acc ->
+      degrees_f = degrees_c |> to_fahrenheit() |> Decimal.to_float()
+
+      acc
+      |> update_in([:labels], &(&1 ++ [to_iso8601(date)]))
+      |> update_in([:data], &(&1 ++ [degrees_f]))
+    end)
   end
 end

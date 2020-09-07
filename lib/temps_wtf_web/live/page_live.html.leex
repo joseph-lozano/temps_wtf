@@ -4,7 +4,7 @@
   </div>
   <div class="row">
     <p class="text-center mt-3">
-      Showing every time a a recording breaking temperature was recorded at various weather stations.
+      Showing every time a a record breaking temperature was measured
     </p>
     <p class="text-center">
       Hint: The best data is usually at airports
@@ -45,8 +45,12 @@
           <%= to_iso8601(date) %>
         </div>
         <div class="col-4">
-          <span class="float-right"><%= to_fahrenheit(temp) %></span>
+          <span class="float-right"><%= to_fahrenheit(temp)%>°F</span>
         </div>
       </div>
     <% end %>
 </div>
+
+
+
+<canvas id="chart" height="600" width="2500" phx-hook="Chart" phx-update="ignore" <%= if @highs == [], do: "hidden=true" %>></canvas>

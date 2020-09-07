@@ -11,6 +11,19 @@ defmodule TempsWTF.Weather do
     )
   end
 
+  def get_yearly_highs(station_id) do
+    with {:ok, {_, data}} <- get_station_stats(station_id),
+         grouped_by_year <- Enum.group_by(data, & &1.date.year) do
+      grouped_by_year
+    end
+    |> Enum.map(fn {_year, list} ->
+      hottest = Enum.max_by(list, & &1.temp_max)
+      {hottest.date, hottest.temp_max}
+    end)
+    |> Enum.reject(fn {_, temp} -> is_nil(temp) end)
+    |> Enum.sort_by(fn {year, _} -> year end, Date)
+  end
+
   def get_record_highs(station_id) do
     get_station_stats(station_id)
     |> case do

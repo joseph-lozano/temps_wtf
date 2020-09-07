@@ -13,12 +13,52 @@ import "../css/app.scss"
 //     import socket from "./socket"
 //
 import "phoenix_html"
-import {Socket} from "phoenix"
+import { Socket } from "phoenix"
 import NProgress from "nprogress"
-import {LiveSocket} from "phoenix_live_view"
+import { LiveSocket } from "phoenix_live_view"
 
+import regression from 'regression'
+
+
+
+import Chart from 'chart.js'
+var ctx = document.getElementById('chart')
+var myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [],
+        datasets: [{
+            label: 'Highest Recored Temperature per Year',
+            data: [],
+            fill: false,
+            borderColor: "orange",
+            cubicInterpolationMode: 'default'
+        },
+        { label: "Linear Regression", data: [], borderColor: "red", fill: false }]
+    },
+    options: {
+    }
+});
+
+let Hooks = {}
+Hooks.Chart = {
+    mounted() {
+        this.handleEvent("chart", ({ data }) => {
+            var clean_data = data.labels.map((el, i) => {
+                return [i, data.data[i]]
+            })
+
+            var regression_data = regression.linear(clean_data)
+            myChart.config.data.datasets[0].data = data.data
+            myChart.config.data.datasets[1].data = regression_data.points.map(([x, y]) => y)
+            myChart.config.data.datasets[1].label = `Linear Regression: ${regression_data.string}`
+            myChart.config.data.labels = data.labels
+            myChart.update()
+        })
+    }
+}
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
-let liveSocket = new LiveSocket("/live", Socket, {params: {_csrf_token: csrfToken}})
+let liveSocket = new LiveSocket("/live", Socket, { hooks: Hooks, params: { _csrf_token: csrfToken } })
 
 // Show progress bar on live navigation and form submits
 window.addEventListener("phx:page-loading-start", info => NProgress.start())
