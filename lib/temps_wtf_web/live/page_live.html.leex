@@ -17,7 +17,7 @@
   <div class="row mt-5">
     <%= if @stations != [] do %>
       <%= form_for :station, "#", [method: :get, phx_change: :lookup_station], fn f -> %>
-        <%= select f, :staton, options_for(@stations), class: "form-control", prompt: "State" %>
+        <%= select f, :id, options_for(@stations), class: "form-control", prompt: "State" %>
       <% end %>
     <% end %>
   </div>

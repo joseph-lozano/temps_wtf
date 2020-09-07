@@ -21,12 +21,68 @@ defmodule TempsWTFWeb.PageLive do
     {:noreply, assign(socket, stations: stations, state: state)}
   end
 
-  def handle_event("lookup_station", %{"station" => station_id}, socket) do
+  def handle_event("lookup_station", %{"station" => %{"id" => station_id}}, socket) do
+    Weather.get_record_highs(station_id)
     {:noreply, socket}
   end
 
   defp states do
-    ["CA", "NY"]
+    [
+      "AK",
+      "AL",
+      "AR",
+      "AS",
+      "AZ",
+      "CA",
+      "CO",
+      "CT",
+      "DC",
+      "DE",
+      "FL",
+      "GA",
+      "HI",
+      "IA",
+      "ID",
+      "IL",
+      "IN",
+      "KS",
+      "KY",
+      "LA",
+      "MA",
+      "MD",
+      "ME",
+      "MI",
+      "MN",
+      "MO",
+      "MS",
+      "MT",
+      "NC",
+      "ND",
+      "NE",
+      "NH",
+      "NJ",
+      "NM",
+      "NV",
+      "NY",
+      "OH",
+      "OK",
+      "OR",
+      "PA",
+      "PR",
+      "RI",
+      "SC",
+      "SD",
+      "TN",
+      "TX",
+      "UT",
+      "VA",
+      "VI",
+      "VT",
+      "WA",
+      "WI",
+      "WV",
+      "WY"
+    ]
   end
 
   defp options_for(stations) do

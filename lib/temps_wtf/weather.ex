@@ -3,6 +3,10 @@ defmodule TempsWTF.Weather do
   alias TempsWTF.Repo
   import Ecto.Query, only: [from: 1, from: 2]
 
+  def get_record_highs(station_id) do
+    IO.inspect(station_id)
+  end
+
   def count_stations do
     Repo.aggregate(from(s in Station), :count)
   end
