@@ -149,7 +149,6 @@ defmodule TempsWTFWeb.PageLive do
   end
 
   def to_fahrenheit(celsius) do
-    IO.inspect(celsius)
     celsius = Decimal.new("#{celsius}")
     conversion = Decimal.new("1.8")
 
