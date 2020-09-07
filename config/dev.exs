@@ -1,5 +1,7 @@
 use Mix.Config
 
+config :temps_wtf, admin_password: "admin"
+
 # Configure your database
 config :temps_wtf, TempsWTF.Repo,
   username: "postgres",

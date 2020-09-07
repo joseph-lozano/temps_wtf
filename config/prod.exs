@@ -13,6 +13,9 @@ config :temps_wtf, TempsWTFWeb.Endpoint,
   url: [host: "temps.wtf", port: 80],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
+config :temps_wtf, google_analytics_id: "UA-175043724-4"
+config :temps_wtf, admin_password: System.get_env("ADMIN_PASSWORD")
+
 # Do not print debug messages in production
 config :logger, level: :info
 
