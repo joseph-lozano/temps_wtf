@@ -1,48 +1,24 @@
-<section class="phx-hero">
-  <h1><%= gettext "Welcome to %{name}!", name: "Phoenix" %></h1>
-  <p>Peace of mind from prototype to production</p>
-
-  <form phx-change="suggest" phx-submit="search">
-    <input type="text" name="q" value="<%= @query %>" placeholder="Live dependency search" list="results" autocomplete="off"/>
-    <datalist id="results">
-      <%= for {app, _vsn} <- @results do %>
-        <option value="<%= app %>"><%= app %></option>
+<div class="container">
+  <div class="row">
+    <h1 class="text-center mt-5">Temps.WTF</h1>
+  </div>
+  <%= form_for :location, "#", [method: :get, phx_change: :get_stations], fn f -> %>
+    <div class="row form-row">
+      <div class="col">
+        <label class="form-label">Country</label>
+          <%= select f, :country, ["US"], class: "form-control disabled" %>
+      </div>
+      <div class="col">
+        <label class="form-label">State</label>
+          <%= select f, :state, states(), class: "form-control", prompt: "State", selected: @state %>
+      </div>
+    </div>
+  <% end %>
+  <div class="row mt-5">
+    <%= if @stations != [] do %>
+      <%= form_for :station, "#", [method: :get, phx_change: :lookup_station], fn f -> %>
+        <%= select f, :staton, options_for(@stations), class: "form-control", prompt: "State" %>
       <% end %>
-    </datalist>
-    <button type="submit" phx-disable-with="Searching...">Go to Hexdocs</button>
-  </form>
-</section>
-
-<section class="row">
-  <article class="column">
-    <h2>Resources</h2>
-    <ul>
-      <li>
-        <a href="https://hexdocs.pm/phoenix/overview.html">Guides &amp; Docs</a>
-      </li>
-      <li>
-        <a href="https://github.com/phoenixframework/phoenix">Source</a>
-      </li>
-      <li>
-        <a href="https://github.com/phoenixframework/phoenix/blob/v1.5/CHANGELOG.md">v1.5 Changelog</a>
-      </li>
-    </ul>
-  </article>
-  <article class="column">
-    <h2>Help</h2>
-    <ul>
-      <li>
-        <a href="https://elixirforum.com/c/phoenix-forum">Forum</a>
-      </li>
-      <li>
-        <a href="https://webchat.freenode.net/?channels=elixir-lang">#elixir-lang on Freenode IRC</a>
-      </li>
-      <li>
-        <a href="https://twitter.com/elixirphoenix">Twitter @elixirphoenix</a>
-      </li>
-      <li>
-        <a href="https://elixir-slackin.herokuapp.com/">Elixir on Slack</a>
-      </li>
-    </ul>
-  </article>
-</section>
+    <% end %>
+  </div>
+</div>
