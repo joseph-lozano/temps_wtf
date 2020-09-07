@@ -15,3 +15,4 @@ mix phx.digest
 MIX_ENV=prod mix release --overwrite
 
 _build/prod/rel/temps_wtf/bin/temps_wtf eval "TempsWTF.ReleaseTasks.migrate()"
+_build/prod/rel/temps_wtf/bin/temps_wtf eval "TempsWTF.ReleaseTasks.load_stations()"
