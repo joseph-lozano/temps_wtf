@@ -29,6 +29,10 @@ defmodule TempsWTFWeb.PageLive do
     {:noreply, assign(socket, stations: stations, state: state)}
   end
 
+  def handle_event("get_stations", _params, socket) do
+    {:noreply, socket}
+  end
+
   def handle_event("lookup_station", %{"station" => %{"id" => station_id}}, socket) do
     {in_progress, {flash, flash_msg}, highs} =
       case Weather.get_record_highs(station_id) do
@@ -78,7 +82,7 @@ defmodule TempsWTFWeb.PageLive do
     stations = socket.assigns.stations
 
     Enum.find(stations, &(&1.id == station_id))
-    |> Map.get(:en_name)
+    |> get_in([Access.key(:en_name)])
   end
 
   defp states do
@@ -155,5 +159,13 @@ defmodule TempsWTFWeb.PageLive do
       |> Decimal.round(1)
 
     "#{fahrenheit}°F "
+  end
+
+  defp to_iso8601(%Date{} = date) do
+    Date.to_iso8601(date)
+  end
+
+  defp to_iso8601(string) when is_binary(string) do
+    string
   end
 end

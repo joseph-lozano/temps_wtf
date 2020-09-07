@@ -33,7 +33,7 @@
     <%= for {date, temp} <- @highs do %>
       <div class="row mt-1">
         <div class="col">
-          <%= Date.to_iso8601(date) %>
+          <%= to_iso8601(date) %>
         </div>
         <div class="col">
           <%= to_fahrenheit(temp) %>

@@ -18,9 +18,21 @@ defmodule TempsWTF.Weather do
   end
 
   def do_get_record_highs(station_id) do
-    case maybe_update_station(station_id) do
-      {:ok, _} ->
-        station_data_by_station_id(station_id)
+    get_station_stats(station_id)
+    |> case do
+      {:ok, {:fetched_from_database, data}} ->
+        {:ok, data}
+
+      {:ok, {:fetched_from_meteostat, data}} ->
+        station_id
+        |> get_station()
+        |> update_station(data)
+
+        {:ok, data}
+    end
+    |> case do
+      {:ok, data} ->
+        data
         |> Enum.reject(&is_nil(&1.temp_max))
         |> Enum.reduce(%{max: nil, dates: []}, fn data, %{max: max, dates: dates} = acc ->
           if gt(data.temp_max, max) do
@@ -47,46 +59,38 @@ defmodule TempsWTF.Weather do
     )
   end
 
-  def maybe_update_station(station_id) do
-    station = get_station(station_id)
-    today = NaiveDateTime.local_now() |> NaiveDateTime.to_date()
-
-    cond do
-      is_nil(station) ->
-        {:error, :no_station}
-
-      Date.compare(station.updated_at, today) == :lt ->
-        update_station(station)
-
-      true ->
-        {:ok, :already_up_to_date}
-    end
-  end
-
   def update_no_data(station) do
     cs = Station.no_data(station)
     Repo.update!(cs)
   end
 
-  def update_station(station) do
-    case Meteostat.get_data(station.id) do
-      {:ok, station_stats} ->
-        init_multi =
-          Ecto.Multi.new()
-          |> Ecto.Multi.update("touch-station", Station.touch(station))
+  def update_station(station, station_stats) do
+    Task.async(fn ->
+      init_multi =
+        Ecto.Multi.new()
+        |> Ecto.Multi.update("touch-station", Station.touch(station))
 
-        Enum.reduce(station_stats, init_multi, fn stats, multi ->
-          cs = StationData.changeset(%StationData{}, stats)
-          Ecto.Multi.insert(multi, "#{station.id}_#{stats.date}", cs)
-        end)
-        |> Repo.transaction(timeout: 120_000)
+      Enum.reduce(station_stats, init_multi, fn stats, multi ->
+        cs = StationData.changeset(%StationData{}, stats)
+        Ecto.Multi.insert(multi, "#{station.id}_#{stats.date}", cs)
+      end)
+      |> Repo.transaction(timeout: 120_000)
+    end)
+  end
 
-      {:error, {:no_data, station_id}} ->
-        update_no_data(station)
-        {:error, "No data for #{station_id}"}
+  def get_station_stats(station_id) do
+    case station_data_by_station_id(station_id) do
+      [] ->
+        case Meteostat.get_data(station_id) do
+          {:ok, data} ->
+            {:ok, {:fetched_from_meteostat, data}}
 
-      error ->
-        error
+          {:error, reason} ->
+            {:error, reason}
+        end
+
+      data ->
+        {:ok, {:fetched_from_database, data}}
     end
   end
 

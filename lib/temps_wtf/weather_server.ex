@@ -75,7 +75,6 @@ defmodule TempsWTF.WeatherServer do
 
   @impl true
   def handle_info({_ref, {:max_temps, data}}, state) do
-    Logger.info("GOT DATA FOR #{state.station_id}")
     {:noreply, %{state | in_progress: false, data: data}, {:continue, :update_subscribers}}
   end
 
