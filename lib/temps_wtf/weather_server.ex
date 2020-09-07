@@ -6,8 +6,6 @@ defmodule TempsWTF.WeatherServer do
   use GenServer
 
   def find_or_start(station_id, caller) do
-    IO.inspect(caller, label: "CALLER")
-
     case start_link(station_id, caller) do
       {:ok, pid} ->
         {:ok, pid}
@@ -71,7 +69,6 @@ defmodule TempsWTF.WeatherServer do
   end
 
   def handle_call(:get_data, _from, state) do
-    IO.inspect(state.data)
     do_get_data(state.station_id)
     {:reply, :in_progress, put_in(state.in_progress, true)}
   end

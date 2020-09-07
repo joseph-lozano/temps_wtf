@@ -11,12 +11,17 @@ defmodule TempsWTF.Weather.Station do
     field :longitude, :float
     field :region, :string
     field :timezone, :string
+    field :no_data, :boolean
 
     timestamps()
   end
 
   def touch(station) do
     change(station, %{updated_at: NaiveDateTime.local_now()})
+  end
+
+  def no_data(station) do
+    change(station, %{no_data: true})
   end
 
   @doc false

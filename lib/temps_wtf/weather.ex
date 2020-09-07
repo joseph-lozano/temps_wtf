@@ -63,6 +63,11 @@ defmodule TempsWTF.Weather do
     end
   end
 
+  def update_no_data(station) do
+    cs = Station.no_data(station)
+    Repo.update!(cs)
+  end
+
   def update_station(station) do
     case Meteostat.get_data(station.id) do
       {:ok, station_stats} ->
@@ -75,6 +80,10 @@ defmodule TempsWTF.Weather do
           Ecto.Multi.insert(multi, "#{station.id}_#{stats.date}", cs)
         end)
         |> Repo.transaction(timeout: 120_000)
+
+      {:error, {:no_data, station_id}} ->
+        update_no_data(station)
+        {:error, "No data for #{station_id}"}
 
       error ->
         error
@@ -89,6 +98,7 @@ defmodule TempsWTF.Weather do
     Repo.all(
       from s in Station,
         where: [country: ^country, region: ^region],
+        where: is_nil(s.no_data),
         order_by: :en_name
     )
   end
