@@ -1,4 +1,5 @@
 defmodule TempsWTFWeb.PageLive do
+  require Logger
   use TempsWTFWeb, :live_view
   alias TempsWTF.Weather
 
@@ -75,6 +76,11 @@ defmodule TempsWTFWeb.PageLive do
           assign(socket, highs: data, in_progress: false) |> clear_flash()
       end
 
+    {:noreply, socket}
+  end
+
+  def handle_info(msg, socket) do
+    Logger.debug("UNHANDLED MSG: #{inspect(msg)}")
     {:noreply, socket}
   end
 

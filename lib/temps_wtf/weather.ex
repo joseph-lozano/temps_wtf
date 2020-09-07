@@ -1,6 +1,5 @@
 defmodule TempsWTF.Weather do
   alias TempsWTF.Weather.{Station, StationData}
-  alias TempsWTF.WeatherServer
   alias TempsWTF.Meteostat
   alias TempsWTF.Repo
   import Ecto.Query, only: [from: 1, from: 2]
@@ -13,11 +12,6 @@ defmodule TempsWTF.Weather do
   end
 
   def get_record_highs(station_id) do
-    {:ok, _server} = WeatherServer.find_or_start(station_id, self())
-    WeatherServer.get_data(station_id)
-  end
-
-  def do_get_record_highs(station_id) do
     get_station_stats(station_id)
     |> case do
       {:ok, {:fetched_from_database, data}} ->

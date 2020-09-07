@@ -14,12 +14,11 @@
     <div class="row form-row">
       <div class="col">
         <label class="form-label">Country</label>
-          <%= select f, :country, ["US"], class: "form-control disabled", disabled: @in_progress %>
+        <%= select f, :country, ["US"], class: "form-control disabled", disabled: @in_progress %>
       </div>
       <div class="col">
-      <%= inspect @in_progress %>
         <label class="form-label">State</label>
-          <%= select f, :state, states(), class: "form-control", prompt: "State", selected: @state, disabled: @in_progress %>
+        <%= select f, :state, states(), class: "form-control", prompt: "State", selected: @state, disabled: @in_progress %>
       </div>
     </div>
   <% end %>
