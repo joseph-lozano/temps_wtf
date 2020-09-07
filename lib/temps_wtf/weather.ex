@@ -15,6 +15,7 @@ defmodule TempsWTF.Weather do
     case maybe_update_station(station_id) do
       {:ok, _} ->
         station_data_by_station_id(station_id)
+        |> Enum.reject(&is_nil(&1.temp_max))
         |> Enum.reduce(%{max: nil, dates: []}, fn data, %{max: max, dates: dates} = acc ->
           if gt(data.temp_max, max) do
             %{max: data.temp_max, dates: [{data.date, data.temp_max} | dates]}
@@ -57,17 +58,21 @@ defmodule TempsWTF.Weather do
   end
 
   def update_station(station) do
-    {:ok, station_stats} = Meteostat.get_data(station.id)
+    case Meteostat.get_data(station.id) do
+      {:ok, station_stats} ->
+        init_multi =
+          Ecto.Multi.new()
+          |> Ecto.Multi.update("touch-station", Station.touch(station))
 
-    init_multi =
-      Ecto.Multi.new()
-      |> Ecto.Multi.update("touch-station", Station.touch(station))
+        Enum.reduce(station_stats, init_multi, fn stats, multi ->
+          cs = StationData.changeset(%StationData{}, stats)
+          Ecto.Multi.insert(multi, "#{station.id}_#{stats.date}", cs)
+        end)
+        |> Repo.transaction()
 
-    Enum.reduce(station_stats, init_multi, fn stats, multi ->
-      cs = StationData.changeset(%StationData{}, stats)
-      Ecto.Multi.insert(multi, "#{station.id}_#{stats.date}", cs)
-    end)
-    |> Repo.transaction()
+      error ->
+        error
+    end
   end
 
   def count_stations do

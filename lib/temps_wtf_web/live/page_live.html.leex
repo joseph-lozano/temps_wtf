@@ -17,13 +17,18 @@
   <div class="row mt-5">
     <%= if @stations != [] do %>
       <%= form_for :station, "#", [method: :get, phx_change: :lookup_station], fn f -> %>
-        <%= select f, :id, options_for(@stations), class: "form-control", prompt: "State", phx_disable_with: "Loading..." %>
+        <%= select f, :id, options_for(@stations), class: "form-control", prompt: "State", selected: @station_id %>
       <% end %>
     <% end %>
   </div>
-  <%= for high <- @highs do %>
-    <div class="row mt-5">
-      <%= inspect high %>
-    </div>
-  <% end %>
+    <%= for {date, temp} <- @highs do %>
+      <div class="row mt-1">
+        <div class="col">
+          <%= Date.to_iso8601(date) %>
+        </div>
+        <div class="col">
+          <%= inspect temp %>
+        </div>
+      </div>
+    <% end %>
 </div>

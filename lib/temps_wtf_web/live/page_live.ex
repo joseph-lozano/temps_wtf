@@ -4,7 +4,7 @@ defmodule TempsWTFWeb.PageLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, stations: [], state: nil, highs: [])}
+    {:ok, assign(socket, stations: [], state: nil, highs: [], station_id: nil, station_name: nil)}
   end
 
   @impl true
@@ -22,8 +22,25 @@ defmodule TempsWTFWeb.PageLive do
   end
 
   def handle_event("lookup_station", %{"station" => %{"id" => station_id}}, socket) do
-    highs = Weather.get_record_highs(station_id)
-    {:noreply, assign(socket, highs: highs)}
+    {socket, highs} =
+      case IO.inspect(Weather.get_record_highs(station_id)) do
+        {:error, reason} -> {put_flash(socket, :error, inspect(reason)), []}
+        highs -> {socket, highs}
+      end
+
+    {:noreply,
+     assign(socket,
+       highs: highs,
+       station_id: station_id,
+       station_name: station_name(socket, station_id)
+     )}
+  end
+
+  defp station_name(socket, station_id) do
+    stations = socket.assigns.stations
+
+    Enum.find(stations, &(&1.id == station_id))
+    |> Map.get(:en_name)
   end
 
   defp states do

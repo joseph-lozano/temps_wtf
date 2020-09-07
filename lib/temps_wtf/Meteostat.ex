@@ -1,11 +1,17 @@
 defmodule TempsWTF.Meteostat do
+  require Logger
   alias NimbleCSV.RFC4180, as: CSV
   @doc "Wrapper around HTTP Poison to decode gzipped files"
 
   def get_data(station_id) do
     url = "https://bulk.meteostat.net/daily/#{station_id}.csv.gz"
 
+    Logger.info("GET: #{url}")
+
     case HTTPoison.get(url) do
+      {:ok, %{status_code: 404}} ->
+        {:error, "No Data for station #{station_id}"}
+
       {:ok, resp} ->
         try do
           data =
@@ -15,7 +21,7 @@ defmodule TempsWTF.Meteostat do
           {:ok, data}
         rescue
           e ->
-            {:erorr, e}
+            {:error, e}
         end
 
       error ->
