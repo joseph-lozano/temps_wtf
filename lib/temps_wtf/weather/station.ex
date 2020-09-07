@@ -2,6 +2,7 @@ defmodule TempsWTF.Weather.Station do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @primary_key {:id, :string, []}
   schema "stations" do
     field :country, :string
     field :elevation, :integer
@@ -17,7 +18,23 @@ defmodule TempsWTF.Weather.Station do
   @doc false
   def changeset(station, attrs) do
     station
-    |> cast(attrs, [:country, :elevation, :id, :latitude, :longitude, :en_name, :region, :timezone])
-    |> validate_required([:country, :elevation, :id, :latitude, :longitude, :en_name, :region, :timezone])
+    |> cast(attrs, [
+      :country,
+      :elevation,
+      :id,
+      :latitude,
+      :longitude,
+      :en_name,
+      :region,
+      :timezone
+    ])
+    |> validate_required([
+      :country,
+      :elevation,
+      :id,
+      :latitude,
+      :longitude,
+      :en_name
+    ])
   end
 end
