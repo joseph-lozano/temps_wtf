@@ -94,8 +94,15 @@ defmodule TempsWTF.Weather do
           {:ok, data} ->
             {:ok, {:fetched_from_meteostat, data}}
 
-          {:error, reason} ->
-            {:error, reason}
+          {:error, :no_data} ->
+            cs =
+              station_id
+              |> get_station()
+              |> Station.no_data()
+
+            Repo.update!(cs)
+
+            {:error, "No data for #{station_id}"}
         end
 
       data ->

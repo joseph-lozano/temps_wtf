@@ -10,7 +10,7 @@ defmodule TempsWTF.Meteostat do
 
     case HTTPoison.get(url) do
       {:ok, %{status_code: 404}} ->
-        {:error, "No data for station #{station_id}"}
+        {:error, :no_data}
 
       {:ok, resp} ->
         try do
@@ -21,7 +21,7 @@ defmodule TempsWTF.Meteostat do
           {:ok, data}
         rescue
           e ->
-            {:error, e}
+            e
         end
 
       error ->
