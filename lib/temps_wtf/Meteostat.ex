@@ -34,7 +34,7 @@ defmodule TempsWTF.Meteostat do
     |> Enum.map(fn [date, tavg, tmin, tmax, prcp, snow, wdir, wspd, wpgt, pres, tsun] ->
       %{
         station_id: station_id,
-        date: date,
+        date: date |> Date.from_iso8601!(),
         temp_avg: nil_if_empty(tavg),
         temp_min: nil_if_empty(tmin),
         temp_max: nil_if_empty(tmax),

@@ -11,8 +11,7 @@ defmodule TempsWTFWeb.PageLive do
        state: nil,
        highs: [],
        station_id: nil,
-       station_name: nil,
-       in_progress: false
+       station_name: nil
      )}
   end
 
@@ -35,23 +34,19 @@ defmodule TempsWTFWeb.PageLive do
   end
 
   def handle_event("lookup_station", %{"station" => %{"id" => station_id}}, socket) do
-    {in_progress, {flash, flash_msg}, highs} =
+    {{flash, flash_msg}, highs} =
       case Weather.get_record_highs(station_id) do
-        :in_progress ->
-          {true, {:info, "Getting Data for #{station_id}"}, []}
-
         {:error, reason} ->
-          {false, {:error, reason}, []}
+          {{:error, reason}, []}
 
         highs ->
-          {false, {:info, "Done!"}, highs}
+          {{:info, "Done!"}, highs}
       end
 
     socket = clear_flash(socket) |> put_flash(flash, flash_msg)
 
     {:noreply,
      assign(socket,
-       in_progress: in_progress,
        highs: highs,
        station_id: station_id,
        station_name: station_name(socket, station_id)
@@ -66,14 +61,11 @@ defmodule TempsWTFWeb.PageLive do
       when station_id == station_id_socket do
     socket =
       case Weather.get_record_highs(station_id) do
-        :in_progress ->
-          raise "???"
-
         {:error, reason} ->
-          assign(socket, in_progress: false) |> clear_flash() |> put_flash(:error, reason)
+          socket |> clear_flash() |> put_flash(:error, reason)
 
         data ->
-          assign(socket, highs: data, in_progress: false) |> clear_flash()
+          assign(socket, highs: data) |> clear_flash()
       end
 
     {:noreply, socket}
@@ -169,9 +161,5 @@ defmodule TempsWTFWeb.PageLive do
 
   defp to_iso8601(%Date{} = date) do
     Date.to_iso8601(date)
-  end
-
-  defp to_iso8601(string) when is_binary(string) do
-    string
   end
 end
