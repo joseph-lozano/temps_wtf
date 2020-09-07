@@ -27,7 +27,7 @@ defmodule TempsWTFWeb.PageLive do
         Weather.stations_by_country_and_region(country, state)
       end
 
-    {:noreply, assign(socket, stations: stations, state: state)}
+    {:noreply, assign(socket, stations: stations, state: state, highs: [])}
   end
 
   def handle_event("get_stations", _params, socket) do

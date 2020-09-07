@@ -18,11 +18,11 @@ defmodule TempsWTF.Weather do
         {:ok, data}
 
       {:ok, {:fetched_from_meteostat, data}} ->
-        station_id
-        |> get_station()
-        |> update_station(data)
-
+        update_station(station_id, data)
         {:ok, data}
+
+      e ->
+        e
     end
     |> case do
       {:ok, data} ->
@@ -58,7 +58,9 @@ defmodule TempsWTF.Weather do
     Repo.update!(cs)
   end
 
-  def update_station(station, station_stats) do
+  def update_station(station_id, station_stats) do
+    station = get_station(station_id)
+
     Task.async(fn ->
       init_multi =
         Ecto.Multi.new()
