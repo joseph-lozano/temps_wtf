@@ -33,6 +33,7 @@ defmodule TempsWTF.LoadStations do
 
       attrs = %{
         id: id,
+        last_updated: ~D[1970-01-01],
         country: country,
         elevation: elevation,
         en_name: en_name,

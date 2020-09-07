@@ -1,7 +1,9 @@
 import Ecto.Query, only: [from: 1, from: 2]
+alias TempsWTF.Meteostat
 alias TempsWTF.Repo
 alias TempsWTF.Weather
-alias TempsWTF.Weather.Station
+alias TempsWTF.Weather.{Station, StationData}
+alias NimbleCSV.RFC4180, as: CSV
 
 states =
   Repo.all(from s in Station, where: [country: "US"], select: [:region])
