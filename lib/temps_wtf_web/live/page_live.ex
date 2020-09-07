@@ -106,4 +106,16 @@ defmodule TempsWTFWeb.PageLive do
     stations
     |> Enum.map(&{&1.en_name, &1.id})
   end
+
+  defp to_fahrenheit(celsius) do
+    celsius = Decimal.new("#{celsius}")
+    conversion = Decimal.new("1.8")
+
+    fahrenheit =
+      Decimal.mult(celsius, conversion)
+      |> Decimal.add(Decimal.new(32))
+      |> Decimal.round(1)
+
+    "#{fahrenheit}°F "
+  end
 end

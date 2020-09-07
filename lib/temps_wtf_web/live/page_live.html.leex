@@ -25,7 +25,7 @@
   <div class="row mt-5">
     <%= if @stations != [] do %>
       <%= form_for :station, "#", [method: :get, phx_change: :lookup_station], fn f -> %>
-        <%= select f, :id, options_for(@stations), class: "form-control", prompt: "State", selected: @station_id %>
+        <%= select f, :id, options_for(@stations), class: "form-control", prompt: "Station", selected: @station_id %>
       <% end %>
     <% end %>
   </div>
@@ -35,7 +35,7 @@
           <%= Date.to_iso8601(date) %>
         </div>
         <div class="col">
-          <%= inspect temp %>
+          <%= to_fahrenheit(temp) %>
         </div>
       </div>
     <% end %>
