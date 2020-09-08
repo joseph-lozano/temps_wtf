@@ -70,25 +70,8 @@ defmodule TempsWTFWeb.PageLive do
   end
 
   @impl true
-  def handle_info(
-        {:updated_data, station_id},
-        %{assigns: %{station_id: station_id_socket}} = socket
-      )
-      when station_id == station_id_socket do
-    socket =
-      case Weather.get_record_highs(station_id) do
-        {:error, reason} ->
-          socket |> clear_flash() |> put_flash(:error, reason)
-
-        data ->
-          assign(socket, highs: data) |> clear_flash()
-      end
-
-    {:noreply, socket}
-  end
-
   def handle_info(msg, socket) do
-    Logger.debug("UNHANDLED MSG: #{inspect(msg)}")
+    Logger.warn("UNHANDLED MSG: #{inspect(msg)}")
     {:noreply, socket}
   end
 

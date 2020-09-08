@@ -64,7 +64,7 @@ defmodule TempsWTF.Weather do
   def update_station(station_id, station_stats) do
     station = get_station(station_id)
 
-    Task.async(fn ->
+    Task.start(fn ->
       init_multi =
         Ecto.Multi.new()
         |> Ecto.Multi.update("touch-station", Station.touch(station))
