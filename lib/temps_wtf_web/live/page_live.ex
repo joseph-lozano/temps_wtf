@@ -17,7 +17,6 @@ defmodule TempsWTFWeb.PageLive do
 
   @impl true
   def handle_event("get_stations", %{"location" => params}, socket) do
-    IO.inspect(params)
     %{"country" => country, "state" => state} = params
 
     stations =

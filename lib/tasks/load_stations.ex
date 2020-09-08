@@ -52,6 +52,6 @@ defmodule TempsWTF.LoadStations do
       Logger.info("Inserting Station: #{id}")
       Ecto.Multi.insert(multi, id, cs)
     end)
-    |> Repo.transaction()
+    |> Repo.transaction(timeout: 120_000)
   end
 end

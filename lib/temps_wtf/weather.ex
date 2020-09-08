@@ -12,7 +12,7 @@ defmodule TempsWTF.Weather do
   end
 
   def get_yearly_highs(station_id) do
-    with {:ok, {_, data}} <- get_station_stats(station_id),
+    with {:ok, data} <- get_station_stats(station_id),
          grouped_by_year <- Enum.group_by(data, & &1.date.year) do
       grouped_by_year
     end
@@ -25,18 +25,8 @@ defmodule TempsWTF.Weather do
   end
 
   def get_record_highs(station_id) do
-    get_station_stats(station_id)
-    |> case do
-      {:ok, {:fetched_from_database, data}} ->
-        {:ok, data}
-
-      {:ok, {:fetched_from_meteostat, data}} ->
-        update_station(station_id, data)
-        {:ok, data}
-
-      e ->
-        e
-    end
+    station_id
+    |> get_station_stats()
     |> case do
       {:ok, data} ->
         data
@@ -92,7 +82,8 @@ defmodule TempsWTF.Weather do
       [] ->
         case Meteostat.get_data(station_id) do
           {:ok, data} ->
-            {:ok, {:fetched_from_meteostat, data}}
+            update_station(station_id, data)
+            {:ok, data}
 
           {:error, :no_data} ->
             cs =
@@ -106,7 +97,7 @@ defmodule TempsWTF.Weather do
         end
 
       data ->
-        {:ok, {:fetched_from_database, data}}
+        {:ok, data}
     end
   end
 
