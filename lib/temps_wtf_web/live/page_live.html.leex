@@ -4,7 +4,7 @@
   </div>
   <div class="row">
     <p class="text-center mt-3">
-      Showing every time a a record breaking temperature was measured
+      Showing the hottest temperatures recorded each year
     </p>
     <p class="text-center">
       Hint: The best data is usually at airports
@@ -29,28 +29,6 @@
       <% end %>
     <% end %>
   </div>
-    <%= unless @highs == [] do %>
-    <div class="row mt-5">
-      <div class="col-4">
-        <h3>Date</h3>
-      </div>
-      <div class="col-4">
-        <h3 class="float-right">Temperature</h3>
-      </div>
-    </div>
-    <% end %>
-    <%= for {date, temp} <- @highs do %>
-      <div class="row mt-1">
-        <div class="col-4">
-          <%= to_iso8601(date) %>
-        </div>
-        <div class="col-4">
-          <span class="float-right"><%= to_fahrenheit(temp)%>°F</span>
-        </div>
-      </div>
-    <% end %>
 </div>
 
-
-
-<canvas id="chart" height="600" width="2500" phx-hook="Chart" phx-update="ignore" <%= if @highs == [], do: "hidden=true" %>></canvas>
+<canvas id="chart" height="600" width="2500" phx-hook="Chart" phx-update="ignore" <%= if @yearly == [], do: "hidden=true" %>></canvas>

@@ -24,38 +24,51 @@ import regression from 'regression'
 import Chart from 'chart.js'
 var ctx = document.getElementById('chart')
 var myChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: [],
-        datasets: [{
-            label: 'Highest Recored Temperature per Year',
-            data: [],
-            fill: false,
-            borderColor: "orange",
-            cubicInterpolationMode: 'default'
-        },
-        { label: "Linear Regression", data: [], borderColor: "red", fill: false }]
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: [{
+      label: 'Highest Recorded Temperature per Year',
+      data: [],
+      fill: false,
+      borderColor: "orange",
+      cubicInterpolationMode: 'default'
     },
-    options: {
-    }
+    { label: "Linear Regression", data: [], borderColor: "red", fill: false },
+    {
+      label: 'Lowest Recorded Temperature per Year',
+      data: [],
+      fill: false,
+      borderColor: "cyan",
+      cubicInterpolationMode: 'default'
+    },
+    { label: "Linear Regression", data: [], borderColor: "blue", fill: false }
+    ]
+
+  },
+  options: {
+  }
 });
 
 let Hooks = {}
 Hooks.Chart = {
-    mounted() {
-        this.handleEvent("chart", ({ data }) => {
-            var clean_data = data.labels.map((el, i) => {
-                return [i, data.data[i]]
-            })
-
-            var regression_data = regression.linear(clean_data)
-            myChart.config.data.datasets[0].data = data.data
-            myChart.config.data.datasets[1].data = regression_data.points.map(([x, y]) => y)
-            myChart.config.data.datasets[1].label = `Linear Regression: ${regression_data.string}`
-            myChart.config.data.labels = data.labels
-            myChart.update()
-        })
-    }
+  mounted() {
+    this.handleEvent("chart", ({ data }) => {
+      console.log(data)
+      var clean_data_highs = data.labels.map((el, i) => { return [i, data.data[0][i]] })
+      var clean_data_lows = data.labels.map((el, i) => { return [i, data.data[1][i]] })
+      var regression_data_highs = regression.linear(clean_data_highs)
+      var regression_data_lows = regression.linear(clean_data_lows)
+      myChart.config.data.datasets[0].data = data.data[0]
+      myChart.config.data.datasets[2].data = data.data[1]
+      myChart.config.data.datasets[1].data = regression_data_highs.points.map(([x, y]) => y)
+      myChart.config.data.datasets[1].label = `Linear Regression: ${regression_data_highs.string}`
+      myChart.config.data.datasets[3].data = regression_data_lows.points.map(([x, y]) => y)
+      myChart.config.data.datasets[3].label = `Linear Regression: ${regression_data_lows.string}`
+      myChart.config.data.labels = data.labels
+      myChart.update()
+    })
+  }
 }
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, { hooks: Hooks, params: { _csrf_token: csrfToken } })

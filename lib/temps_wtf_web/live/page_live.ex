@@ -9,7 +9,7 @@ defmodule TempsWTFWeb.PageLive do
      assign(socket,
        stations: [],
        state: nil,
-       highs: [],
+       yearly: [],
        station_id: nil,
        station_name: nil
      )}
@@ -26,7 +26,7 @@ defmodule TempsWTFWeb.PageLive do
         Weather.stations_by_country_and_region(country, state)
       end
 
-    {:noreply, assign(socket, stations: stations, state: state, highs: [])}
+    {:noreply, assign(socket, stations: stations, state: state, yearly: [])}
   end
 
   def handle_event("get_stations", _params, socket) do
@@ -36,7 +36,7 @@ defmodule TempsWTFWeb.PageLive do
   def handle_event("lookup_station", %{"station" => %{"id" => station_id}}, socket) do
     socket = clear_flash(socket)
 
-    case Weather.get_record_highs(station_id) do
+    case Weather.get_yearly_records(station_id) do
       {:error, reason} ->
         socket =
           assign(
@@ -46,7 +46,7 @@ defmodule TempsWTFWeb.PageLive do
                 "US",
                 socket.assigns.state
               ),
-            highs: [],
+            yearly: [],
             station_id: station_id,
             station_name: station_name(socket, station_id)
           )
@@ -54,12 +54,10 @@ defmodule TempsWTFWeb.PageLive do
 
         {:noreply, socket}
 
-      highs ->
-        yearly = Weather.get_yearly_highs(station_id)
-
+      yearly ->
         socket =
           assign(socket,
-            highs: highs,
+            yearly: yearly,
             station_id: station_id,
             station_name: station_name(socket, station_id)
           )
@@ -155,17 +153,18 @@ defmodule TempsWTFWeb.PageLive do
     |> Decimal.round(1)
   end
 
-  defp to_iso8601(%Date{} = date) do
-    Date.to_iso8601(date)
-  end
-
-  defp encode(highs) do
-    Enum.reduce(highs, %{labels: [], data: []}, fn {date, degrees_c}, acc ->
-      degrees_f = degrees_c |> to_fahrenheit() |> Decimal.to_float()
+  defp encode(records) do
+    Enum.reduce(records, %{labels: [], data: [[], []]}, fn {date, high_degrees_c, low_degrees_c},
+                                                           acc ->
+      high_degrees_f = high_degrees_c |> to_fahrenheit() |> Decimal.to_float()
+      low_degrees_f = low_degrees_c |> to_fahrenheit() |> Decimal.to_float()
 
       acc
-      |> update_in([:labels], &(&1 ++ [to_iso8601(date)]))
-      |> update_in([:data], &(&1 ++ [degrees_f]))
+      |> update_in([:labels], &(&1 ++ [date]))
+      |> update_in([:data], fn [highs, lows] ->
+        [highs ++ [high_degrees_f], lows ++ [low_degrees_f]]
+      end)
     end)
+    |> IO.inspect()
   end
 end
