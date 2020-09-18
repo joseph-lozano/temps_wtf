@@ -86,5 +86,6 @@
   </tbody>
 </table>
 <% end %>
-
-<canvas id="chart" height="800" width="2500" phx-hook="Chart" phx-update="ignore" <%= if @yearly == [], do: "hidden=true" %>></canvas>
+<div class="d-none d-md-block">
+  <canvas id="chart" height="600" width="2000" phx-hook="Chart" phx-update="ignore" <%= if @yearly == [], do: "hidden=true" %>></canvas>
+</div>
