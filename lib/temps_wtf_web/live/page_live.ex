@@ -39,13 +39,8 @@ defmodule TempsWTFWeb.PageLive do
     case Weather.get_yearly_records(station_id) do
       {:error, reason} ->
         socket =
-          assign(
-            socket,
-            stations:
-              Weather.stations_by_country_and_region(
-                "US",
-                socket.assigns.state
-              ),
+          assign(socket,
+            stations: Weather.stations_by_country_and_region("US", socket.assigns.state),
             yearly: [],
             station_id: station_id,
             station_name: station_name(socket, station_id)
@@ -144,6 +139,8 @@ defmodule TempsWTFWeb.PageLive do
     |> Enum.map(&{&1.en_name, &1.id})
   end
 
+  def to_fahrenheit(nil), do: ""
+
   def to_fahrenheit(celsius) do
     celsius = Decimal.new("#{celsius}")
     conversion = Decimal.new("1.8")
@@ -154,7 +151,8 @@ defmodule TempsWTFWeb.PageLive do
   end
 
   defp encode(records) do
-    Enum.reduce(records, %{labels: [], data: [[], []]}, fn {date, high_degrees_c, low_degrees_c},
+    Enum.reduce(records, %{labels: [], data: [[], []]}, fn {date, {_high_date, high_degrees_c},
+                                                            {_low_date, low_degrees_c}},
                                                            acc ->
       high_degrees_f = high_degrees_c |> to_fahrenheit() |> Decimal.to_float()
       low_degrees_f = low_degrees_c |> to_fahrenheit() |> Decimal.to_float()
@@ -165,6 +163,5 @@ defmodule TempsWTFWeb.PageLive do
         [highs ++ [high_degrees_f], lows ++ [low_degrees_f]]
       end)
     end)
-    |> IO.inspect()
   end
 end

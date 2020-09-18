@@ -14,15 +14,14 @@ defmodule TempsWTF.Weather do
   def get_yearly_records(station_id) do
     with {:ok, data} <- get_station_stats(station_id),
          grouped_by_year <- Enum.group_by(data, & &1.date.year),
-         hottest <-
+         data <-
            Enum.map(grouped_by_year, fn {year, list} ->
              hottest = Enum.max_by(list, & &1.temp_max)
              coldest = Enum.min_by(list, & &1.temp_min)
-             {year, hottest.temp_max, coldest.temp_min}
+             {year, {hottest.date, hottest.temp_max}, {coldest.date, coldest.temp_min}}
            end),
-         IO.inspect(hottest),
          not_nil <-
-           Enum.reject(hottest, fn {_, high_temp, low_temp} ->
+           Enum.reject(data, fn {_, {_, high_temp}, {_, low_temp}} ->
              is_nil(high_temp) or is_nil(low_temp)
            end),
          sorted <- Enum.sort_by(not_nil, fn {year, _, _} -> year end) do

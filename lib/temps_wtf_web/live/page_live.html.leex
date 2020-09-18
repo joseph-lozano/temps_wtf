@@ -4,7 +4,11 @@
   </div>
   <div class="row">
     <p class="text-center mt-3">
-      Showing the hottest temperatures recorded each year
+      Showing the hottest and coldest temperatures recorded each year
+    </p>
+    <p class="text-center">
+      Not all stations have data. If you select a station without data, you will see a flash message at the top of the page,
+      and that station will be removed from the list for you and all future visitors.
     </p>
     <p class="text-center">
       Hint: The best data is usually at airports
@@ -31,4 +35,49 @@
   </div>
 </div>
 
-<canvas id="chart" height="600" width="2500" phx-hook="Chart" phx-update="ignore" <%= if @yearly == [], do: "hidden=true" %>></canvas>
+<canvas id="chart" height="800" width="2500" phx-hook="Chart" phx-update="ignore" <%= if @yearly == [], do: "hidden=true" %>></canvas>
+
+<%= if @yearly != [] do %>
+<table class="table">
+  <thead>
+    <tr>
+      <th>
+        Year
+      </th>
+      <th>
+        Hottest Day
+      </th>
+      <th>
+        Hottest Temp
+      </th>
+      <th>
+        Coldest Day
+      </th>
+      <th>
+        Coldest Temp
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <%= for {year, {hottest_day, hottest_temp}, {coldest_day, coldest_temp}} <- @yearly do %>
+      <tr>
+        <td>
+          <%= year %>
+        </td>
+        <td>
+          <%= hottest_day %>
+        </td>
+        <td>
+          <%= to_fahrenheit(hottest_temp) %>
+        </td>
+        <td>
+          <%= coldest_day %>
+        </td>
+        <td>
+          <%= to_fahrenheit(coldest_temp) %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+<% end %>
