@@ -11,7 +11,8 @@ defmodule TempsWTFWeb.PageLive do
        state: nil,
        yearly: [],
        station_id: nil,
-       station_name: nil
+       station_name: nil,
+       records: []
      )}
   end
 
@@ -43,7 +44,8 @@ defmodule TempsWTFWeb.PageLive do
             stations: Weather.stations_by_country_and_region("US", socket.assigns.state),
             yearly: [],
             station_id: station_id,
-            station_name: station_name(socket, station_id)
+            station_name: station_name(socket, station_id),
+            records: []
           )
           |> put_flash(:error, reason)
 
@@ -54,7 +56,8 @@ defmodule TempsWTFWeb.PageLive do
           assign(socket,
             yearly: yearly,
             station_id: station_id,
-            station_name: station_name(socket, station_id)
+            station_name: station_name(socket, station_id),
+            records: Weather.get_record_highs_and_lows(yearly)
           )
           |> push_event("chart", %{data: encode(yearly)})
 
@@ -137,6 +140,18 @@ defmodule TempsWTFWeb.PageLive do
   defp options_for(stations) do
     stations
     |> Enum.map(&{&1.en_name, &1.id})
+  end
+
+  def class_for({_, {high, _}, {low, _}}, %{record_highs: highs, record_lows: lows}) do
+    record_high = high in highs
+    record_low = low in lows
+
+    cond do
+      record_high and record_low -> "record-both"
+      record_high -> "record-high"
+      record_low -> "record-low"
+      true -> ""
+    end
   end
 
   def to_fahrenheit(nil), do: ""

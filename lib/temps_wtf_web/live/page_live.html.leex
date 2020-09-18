@@ -35,10 +35,15 @@
   </div>
 </div>
 
-<canvas id="chart" height="800" width="2500" phx-hook="Chart" phx-update="ignore" <%= if @yearly == [], do: "hidden=true" %>></canvas>
+
 
 <%= if @yearly != [] do %>
-<table class="table">
+<div class="m-4">
+<p>Years with record highs are shown in <span class="record-high">red</span></p>
+<p>Years with record lows are shown in <span class="record-low">blue</span></p>
+<p>Years with both are shown in <span class="record-both">purple</span></p>
+</div>
+<table class="table mt-5">
   <thead>
     <tr>
       <th>
@@ -59,8 +64,8 @@
     </tr>
   </thead>
   <tbody>
-    <%= for {year, {hottest_day, hottest_temp}, {coldest_day, coldest_temp}} <- @yearly do %>
-      <tr>
+    <%= for {year, {hottest_day, hottest_temp}, {coldest_day, coldest_temp}}= year_data <- @yearly do %>
+      <tr class="<%= class_for(year_data, @records) %>">
         <td>
           <%= year %>
         </td>
@@ -81,3 +86,5 @@
   </tbody>
 </table>
 <% end %>
+
+<canvas id="chart" height="800" width="2500" phx-hook="Chart" phx-update="ignore" <%= if @yearly == [], do: "hidden=true" %>></canvas>

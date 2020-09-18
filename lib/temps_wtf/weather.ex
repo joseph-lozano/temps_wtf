@@ -29,29 +29,40 @@ defmodule TempsWTF.Weather do
     end
   end
 
-  def get_record_highs(station_id) do
-    station_id
-    |> get_station_stats()
-    |> case do
-      {:ok, data} ->
-        data
-        |> Enum.reject(&is_nil(&1.temp_max))
-        |> Enum.reduce(%{max: nil, dates: []}, fn data, %{max: max, dates: dates} = acc ->
-          if gt(data.temp_max, max) do
-            %{max: data.temp_max, dates: [{data.date, data.temp_max} | dates]}
-          else
-            acc
-          end
-        end)
-        |> Map.get(:dates)
+  def get_record_highs_and_lows(data) do
+    Enum.reduce(
+      data,
+      %{
+        max: nil,
+        record_highs: [],
+        min: nil,
+        record_lows: []
+      },
+      fn {_year, {high_date, high_temp}, {low_date, low_temp}},
+         %{
+           max: max,
+           record_highs: record_highs,
+           min: min,
+           record_lows: record_lows
+         } = _acc ->
+        {max, record_highs} =
+          if gt(high_temp, max),
+            do: {high_temp, [high_date | record_highs]},
+            else: {max, record_highs}
 
-      e ->
-        e
-    end
+        {min, record_lows} =
+          if lt(low_temp, min), do: {low_temp, [low_date | record_lows]}, else: {min, record_lows}
+
+        %{min: min, record_lows: record_lows, max: max, record_highs: record_highs}
+      end
+    )
+    |> Map.take([:record_highs, :record_lows])
   end
 
   def gt(_, nil), do: true
   def gt(a, b), do: a > b
+  def lt(_, nil), do: true
+  def lt(a, b), do: a < b
 
   def station_data_by_station_id(station_id) do
     Repo.all(
